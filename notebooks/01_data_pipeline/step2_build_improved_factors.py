@@ -4,12 +4,11 @@
 ====================================================
 计算改进因子 wgt_return（换手率加权）与 exp_wgt_return（指数衰减换手率加权）。
 
-独立脚本，不动 step1 的面板。产出 improved_factors.csv，之后与 monthly_panel.csv
-按 (cross_date, code) 合并。
+权重用「换手率等价」= 成交量 / 复权因子 factor：
+  换手率 = 成交量/流通股本；送股/转增会让股本翻倍、成交量也翻倍，但换手率不变。
+  复权因子 factor 与股本同比例变化，故 成交量/factor ∝ 换手率，可消除送股造成的跳增。
 
-口径：
-  - wgt_return_Nm  = Σ(volume×r) / Σ(volume)，过去 N 个自然月（等价换手率加权）
-  - exp_wgt_return_Nm 权重 = volume × exp(-x/(N*21/4))，半衰期 = N/4 个月 = N*21/4 交易日
+产出 improved_factors.csv，之后与 monthly_panel.csv 按 (cross_date, code) 合并。
 运行：聚宽研究环境。断点续跑。
 """
 
@@ -25,7 +24,7 @@ BENCH = "000300.XSHG"
 WINDOWS = [1, 3, 6, 12]
 LOOKBACK_MONTHS = 14
 CACHE_FILE = "improved_factors_cache.csv"
-FIELDS = ["close", "volume"]
+FIELDS = ["close", "volume", "factor"]
 
 
 def field_matrix(data, field):
@@ -78,14 +77,17 @@ for k, (i, cross_date) in enumerate(pairs):
                     fields=FIELDS, fq="pre", panel=False)
     close = field_matrix(raw, "close").sort_index()
     volume = field_matrix(raw, "volume").sort_index()
+    factor = field_matrix(raw, "factor").sort_index()
     close.index = pd.to_datetime(close.index)
     volume.index = pd.to_datetime(volume.index)
+    factor.index = pd.to_datetime(factor.index)
 
+    weight = volume / factor            # 换手率等价权重（除复权因子，消除送股跳增）
     r_daily = close.pct_change()
     row = {"cross_date": date_str, "code": list(close.columns)}
     for n in WINDOWS:
         if i >= n:
-            w = volume.loc[cross_dates[i - n]:cross_date]
+            w = weight.loc[cross_dates[i - n]:cross_date]
             rr = r_daily.loc[cross_dates[i - n]:cross_date]
             row["wgt_return_%dm" % n] = ((w * rr).sum() / w.sum()).values
             days_back = np.arange(len(w))[::-1]
