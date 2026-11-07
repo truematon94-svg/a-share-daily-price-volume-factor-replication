@@ -1,0 +1,33 @@
+# Local-only handoff documents
+/README.md
+/WORKLOG.md
+
+# Python environment and caches
+/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Local data and generated outputs
+/data/raw/*
+!/data/raw/.gitkeep
+/data/interim/*
+!/data/interim/.gitkeep
+/data/processed/*
+!/data/processed/.gitkeep
+/data/cache/*
+!/data/cache/.gitkeep
+/results/figures/*
+!/results/figures/.gitkeep
+/results/tables/*
+!/results/tables/.gitkeep
+/results/logs/*
+!/results/logs/.gitkeep
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

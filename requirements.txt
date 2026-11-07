@@ -1,0 +1,10 @@
+numpy>=2.0,<3.0
+pandas>=2.2,<3.0
+scipy>=1.13,<2.0
+statsmodels>=0.14,<1.0
+matplotlib>=3.9,<4.0
+seaborn>=0.13,<1.0
+pyarrow>=18,<24
+jupyterlab>=4.3,<5.0
+pytest>=8.3,<10.0
+
